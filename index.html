@@ -2,17 +2,180 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des cours</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>📚 Liste des cours</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        /* container الرئيسي */
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* الهيدر */
+        .header {
+            background: #1e2a3e;
+            padding: 2rem 1.8rem;
+            border-bottom: 4px solid #f59e0b;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #f59e0b;
+            color: #1e2a3e;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.25rem 0.8rem;
+            border-radius: 40px;
+        }
+
+        /* قائمة الكورسات */
+        .course-list {
+            padding: 1.2rem 1.5rem 2rem 1.5rem;
+            list-style: none;
+        }
+
+        .course-list li {
+            margin-bottom: 0.9rem;
+        }
+
+        .course-list a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f8fafc;
+            padding: 1rem 1.4rem;
+            border-radius: 1.2rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #0f172a;
+            transition: all 0.25s;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* أيقونة صغيرة قدام كل رابط */
+        .course-list a::before {
+            content: "📖";
+            font-size: 1.4rem;
+            transition: transform 0.2s;
+        }
+
+        /* تأثير hover */
+        .course-list a:hover {
+            background: #ffffff;
+            border-color: #f59e0b;
+            transform: translateX(6px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+        }
+
+        .course-list a:hover::before {
+            transform: scale(1.1);
+        }
+
+        /* footer صغير */
+        .footer-note {
+            padding: 1rem 1.8rem 1.5rem 1.8rem;
+            border-top: 1px solid #eef2f6;
+            font-size: 0.8rem;
+            color: #5b6e8c;
+            text-align: center;
+        }
+
+        /* ========== RESPONSIVE (الهاتف) ========== */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1.3rem 1.2rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .course-list {
+                padding: 0.8rem 1.2rem 1.5rem 1.2rem;
+            }
+
+            .course-list a {
+                padding: 0.8rem 1rem;
+                font-size: 1rem;
+            }
+
+            .course-list a::before {
+                font-size: 1.2rem;
+            }
+
+            .footer-note {
+                font-size: 0.7rem;
+                padding: 0.8rem 1.2rem 1.2rem;
+            }
+        }
+
+        /* تحسين للحواف الكبيرة (شاشات عريضة) */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 850px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                📚 Liste des cours
+                <span class="badge">Biochimie</span>
+            </h1>
+        </div>
 
-    <h1>📚 Liste des cours</h1>
+        <ul class="course-list">
+            <li>
+                <a href="QCM/les lipides.html">Les lipides</a>
+            </li>
+            <!-- تقدر تزيد أي cours آخر هنا بنفس الطريقة -->
+            <!--
+            <li>
+                <a href="QCM/les glucides.html">Les glucides</a>
+            </li>
+            <li>
+                <a href="QCM/les proteines.html">Les protéines</a>
+            </li>
+            -->
+        </ul>
 
-    <ul>
-        <li>
-            <a href="QCM/les lipides.html">Les lipides</a>
-        </li>
-    </ul>
-
+        <div class="footer-note">
+            ✨ Choisis un cours pour commencer le QCM
+        </div>
+    </div>
 </body>
 </html>
