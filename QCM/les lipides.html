@@ -53,6 +53,25 @@
             margin-bottom: 25px;
             color: #1f5068;
         }
+        .last-score-board {
+            background: #e8f0f5;
+            padding: 8px 16px;
+            border-radius: 60px;
+            display: inline-block;
+            font-size: 0.85rem;
+            margin-right: 15px;
+            color: #2c7da0;
+        }
+        .mode-badge {
+            background: #ffc107;
+            padding: 8px 16px;
+            border-radius: 60px;
+            display: inline-block;
+            font-size: 0.85rem;
+            margin-right: 15px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
         .question-card {
             background: #ffffff;
             border-radius: 32px;
@@ -128,6 +147,7 @@
             gap: 15px;
             justify-content: flex-end;
             margin-top: 5px;
+            flex-wrap: wrap;
         }
         button {
             background: #2c7da0;
@@ -156,6 +176,48 @@
         .reset-btn:hover {
             background: #2c4d5e;
         }
+        .clear-progress-btn {
+            background: #c0392b;
+        }
+        .clear-progress-btn:hover {
+            background: #a82315;
+        }
+        .review-btn {
+            background: #e67e22;
+        }
+        .review-btn:hover {
+            background: #d35400;
+        }
+        .review-active {
+            background: #27ae60;
+        }
+        .review-active:hover {
+            background: #229954;
+        }
+        .resume-banner {
+            background: #d4eaf3;
+            border-radius: 50px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            color: #1a5d7a;
+            border: 1px solid #bddbe8;
+            transition: 0.2s;
+        }
+        .resume-banner:hover {
+            background: #c2e0ec;
+            transform: scale(1.01);
+        }
+        .wrong-counter {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
         .quiz-footer {
             margin-top: 30px;
             text-align: center;
@@ -168,6 +230,7 @@
             .quiz-container { padding: 18px; }
             .q-text { font-size: 1.2rem; }
             .opt { padding: 8px 16px; }
+            .btn-group button { padding: 8px 18px; font-size: 0.85rem; }
         }
         .finish-message {
             background: #d9eef5;
@@ -177,14 +240,31 @@
             margin-top: 15px;
             font-weight: bold;
         }
+        .progress-stats {
+            background: #ecf0f1;
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="quiz-container" id="quizApp">
     <h1>🧪 QCM - Lipides : définition, classification, rôles et propriétés</h1>
     <div class="sub">Biochimie – 2ème année Pharmacie (d'après cours complet)</div>
-    <div><span class="score-board" id="scoreDisplay">Score : 0 / 0</span></div>
+    <div>
+        <span class="score-board" id="scoreDisplay">Score : 0 / 0</span>
+        <span class="last-score-board" id="lastScoreDisplay">📊 Dernier résultat: --</span>
+        <span class="mode-badge" id="modeBadge" style="display: none;">📖 Mode Révision</span>
+    </div>
 
+    <div id="resumeBanner" class="resume-banner" style="display: none;"></div>
     <div id="questionArea">
         <!-- question dynamique -->
     </div>
@@ -195,9 +275,7 @@
 
 <script>
     // ================================
-    // 60 QUESTIONS basées exclusivement sur le document lipides
-    // Structure : texte, options [A,B,C,D], correct (0-index), explication + astuce arabe
-    // Répartition équilibrée des réponses : A=15, B=15, C=15, D=15 (total 60)
+    // 60 QUESTIONS (mêmes données)
     // ================================
     const questions = [
         { text: "Quelle propriété physique définit principalement la famille des lipides ?", options: ["La présence d’un groupe phosphate", "La solubilité dans les solvants non polaires", "La présence d’un cycle stéroïde", "Un haut point de fusion"], correct: 1, explanation: "Les lipides sont caractérisés par leur solubilité nulle ou faible dans l'eau et élevée dans les solvants organiques apolaires (méthanol, chloroforme, éther...).", astuce: "تذكر: الليبيدات تذوب في المذيبات العضوية غير القطبية وليس في الماء." },
@@ -263,19 +341,97 @@
         { text: "Quelle est la signification de l'indice de saponification ?", options: ["Masse de KOH pour neutraliser AG libres", "Masse de KOH pour saponifier les esters d'1g de matière grasse", "Degré d'insaturation", "Indice de rancissement"], correct: 1, explanation: "L'indice de saponification représente la masse de KOH (mg) nécessaire pour saponifier les esters présents dans 1 g de corps gras.", astuce: "رقم التصبن = كمية KOH لتصبن الدهون." }
     ];
 
-    // Vérifier que le nombre de questions est exactement 60 et répartition équilibrée des réponses
-    console.assert(questions.length === 60, "Il faut exactement 60 questions");
-    // Ajustement de la répartition : manuellement vérifiée (compter 15 chaque lettre)
-    // On s'assure en comptant rapidement, mais la construction respecte équilibre.
-    // Pour robustesse, on peut légèrement modifier mais déjà fait.
+    const STORAGE_KEY = "qcm_lipides_progress";
+    const LAST_RESULT_KEY = "qcm_lipides_last_result";
+    const WRONG_QUESTIONS_KEY = "qcm_lipides_wrong_questions";
+    const totalQuestions = questions.length;
 
     let currentIndex = 0;
-    let userAnswers = new Array(questions.length).fill(null);
+    let userAnswers = new Array(totalQuestions).fill(null);
     let answerLocked = false;
-    let totalQuestions = questions.length;
+    let reviewMode = false;
+    let wrongQuestionsList = []; // Liste des indices des questions fausses
+    let reviewCurrentIndex = 0;
+    let reviewAnswers = []; // Réponses en mode révision
 
     const questionArea = document.getElementById('questionArea');
     const scoreSpan = document.getElementById('scoreDisplay');
+    const lastScoreSpan = document.getElementById('lastScoreDisplay');
+    const resumeBanner = document.getElementById('resumeBanner');
+    const modeBadge = document.getElementById('modeBadge');
+
+    // ========== Sauvegarde / Chargement ==========
+    function saveProgress() {
+        if (reviewMode) return; // Ne pas sauvegarder la progression en mode révision
+        const data = {
+            userAnswers: userAnswers,
+            currentIndex: currentIndex,
+            lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.userAnswers && data.userAnswers.length === totalQuestions) {
+                    userAnswers = data.userAnswers;
+                    currentIndex = data.currentIndex;
+                    if (currentIndex >= totalQuestions) currentIndex = totalQuestions - 1;
+                    return true;
+                }
+            } catch(e) {}
+        }
+        return false;
+    }
+
+    function saveWrongQuestions() {
+        const wrongIndices = [];
+        for (let i = 0; i < totalQuestions; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] !== questions[i].correct) {
+                wrongIndices.push(i);
+            }
+        }
+        localStorage.setItem(WRONG_QUESTIONS_KEY, JSON.stringify(wrongIndices));
+        return wrongIndices;
+    }
+
+    function loadWrongQuestions() {
+        const saved = localStorage.getItem(WRONG_QUESTIONS_KEY);
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch(e) {}
+        }
+        return [];
+    }
+
+    function saveLastResult(correctCount) {
+        const result = {
+            correct: correctCount,
+            total: totalQuestions,
+            percentage: ((correctCount / totalQuestions) * 100).toFixed(1),
+            date: new Date().toLocaleString()
+        };
+        localStorage.setItem(LAST_RESULT_KEY, JSON.stringify(result));
+        updateLastResultDisplay();
+    }
+
+    function updateLastResultDisplay() {
+        const saved = localStorage.getItem(LAST_RESULT_KEY);
+        if (saved) {
+            try {
+                const res = JSON.parse(saved);
+                lastScoreSpan.innerText = `📊 Dernier résultat: ${res.correct}/${res.total} (${res.percentage}%)`;
+            } catch(e) {
+                lastScoreSpan.innerText = `📊 Dernier résultat: --`;
+            }
+        } else {
+            lastScoreSpan.innerText = `📊 Dernier résultat: --`;
+        }
+    }
 
     function updateScore() {
         let correctCount = 0;
@@ -286,11 +442,174 @@
         return correctCount;
     }
 
+    function updateWrongCountDisplay() {
+        const wrongCount = saveWrongQuestions().length;
+        const wrongCounter = document.getElementById('wrongCounter');
+        if (wrongCounter) {
+            if (wrongCount > 0) {
+                wrongCounter.innerText = `❌ À revoir: ${wrongCount}`;
+                wrongCounter.style.display = 'inline-block';
+            } else {
+                wrongCounter.style.display = 'none';
+            }
+        }
+    }
+
+    function checkAndShowResumeBanner() {
+        const hasProgress = userAnswers.some(a => a !== null);
+        const isComplete = userAnswers.every(a => a !== null);
+        
+        if (hasProgress && !isComplete && !reviewMode && currentIndex > 0) {
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            resumeBanner.innerHTML = `📌 Vous étiez à la question ${currentIndex + 1} (${answeredCount}/${totalQuestions} répondues). Cliquez ici pour continuer.`;
+            resumeBanner.style.display = "block";
+            resumeBanner.onclick = () => {
+                resumeBanner.style.display = "none";
+                renderCurrentQuestion();
+            };
+        } else {
+            resumeBanner.style.display = "none";
+        }
+    }
+
+    // ========== Mode Révision ==========
+    function startReviewMode() {
+        const wrongIndices = saveWrongQuestions();
+        
+        if (wrongIndices.length === 0) {
+            alert("🎉 Félicitations ! Vous n'avez aucune erreur à réviser. Toutes vos réponses sont correctes !");
+            return;
+        }
+        
+        reviewMode = true;
+        wrongQuestionsList = [...wrongIndices];
+        reviewCurrentIndex = 0;
+        reviewAnswers = new Array(wrongQuestionsList.length).fill(null);
+        
+        modeBadge.style.display = "inline-block";
+        modeBadge.innerHTML = `📖 Mode Révision (${wrongQuestionsList.length} questions à revoir)`;
+        
+        renderReviewQuestion();
+    }
+    
+    function renderReviewQuestion() {
+        if (reviewCurrentIndex >= wrongQuestionsList.length) {
+            // Fin de la révision
+            const correctInReview = reviewAnswers.filter((a, idx) => a === questions[wrongQuestionsList[idx]].correct).length;
+            const message = `📚 Révision terminée !\nVous avez corrigé ${correctInReview}/${wrongQuestionsList.length} questions.\n`;
+            
+            if (correctInReview === wrongQuestionsList.length) {
+                alert("🎉 Bravo ! Vous avez corrigé toutes vos erreurs !");
+            } else {
+                alert(`📝 ${message}\nContinuez à réviser pour maîtriser toutes les questions.`);
+            }
+            
+            exitReviewMode();
+            return;
+        }
+        
+        const originalIndex = wrongQuestionsList[reviewCurrentIndex];
+        const q = questions[originalIndex];
+        const selectedIdx = reviewAnswers[reviewCurrentIndex];
+        const isAnswered = (selectedIdx !== null);
+        const isCorrect = (isAnswered && selectedIdx === q.correct);
+        
+        let feedbackHtml = '';
+        if (isAnswered) {
+            if (isCorrect) {
+                feedbackHtml = `<div class="feedback correct">✅ Correct ! ${q.explanation}</div>`;
+            } else {
+                feedbackHtml = `<div class="feedback wrong">❌ Encore faux. La réponse correcte est : ${q.options[q.correct]}.<br>📘 ${q.explanation}<br>💡 ${q.astuce}</div>`;
+            }
+        }
+        
+        let optionsHtml = '';
+        for (let i = 0; i < q.options.length; i++) {
+            const checkedAttr = (selectedIdx === i) ? 'checked' : '';
+            optionsHtml += `
+                <div class="opt" data-opt-index="${i}">
+                    <input type="radio" name="reviewQuestion" value="${i}" id="rev_opt_${i}" ${checkedAttr} ${isAnswered ? 'disabled' : ''}>
+                    <label for="rev_opt_${i}">${String.fromCharCode(65+i)}. ${q.options[i]}</label>
+                </div>
+            `;
+        }
+        
+        const isLast = (reviewCurrentIndex === wrongQuestionsList.length - 1);
+        const nextText = isLast ? "Terminer la révision" : "Question suivante";
+        
+        const html = `
+            <div class="question-card">
+                <div class="progress-stats">
+                    <span>📖 Révision: ${reviewCurrentIndex + 1} / ${wrongQuestionsList.length}</span>
+                    <span>📝 Question originale #${originalIndex + 1}</span>
+                </div>
+                <div class="q-text">${q.text}</div>
+                <div class="options" id="reviewOptionsContainer">
+                    ${optionsHtml}
+                </div>
+                ${feedbackHtml}
+                <div class="btn-group">
+                    <button id="reviewVerifyBtn" ${isAnswered ? 'disabled' : ''}>Vérifier</button>
+                    <button id="reviewNextBtn">${nextText}</button>
+                    <button id="exitReviewBtn" class="reset-btn">🚪 Quitter la révision</button>
+                </div>
+            </div>
+        `;
+        questionArea.innerHTML = html;
+        
+        document.getElementById('reviewVerifyBtn')?.addEventListener('click', () => handleReviewVerify());
+        document.getElementById('reviewNextBtn')?.addEventListener('click', () => handleReviewNext());
+        document.getElementById('exitReviewBtn')?.addEventListener('click', () => exitReviewMode());
+        
+        document.querySelectorAll('.opt').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                if (reviewAnswers[reviewCurrentIndex] !== null) return;
+                const radio = opt.querySelector('input[type="radio"]');
+                if (radio && !radio.disabled) radio.checked = true;
+            });
+        });
+    }
+    
+    function handleReviewVerify() {
+        if (reviewAnswers[reviewCurrentIndex] !== null) return;
+        const selectedRadio = document.querySelector('input[name="reviewQuestion"]:checked');
+        if (!selectedRadio) {
+            alert("Veuillez sélectionner une réponse.");
+            return;
+        }
+        const selectedVal = parseInt(selectedRadio.value);
+        reviewAnswers[reviewCurrentIndex] = selectedVal;
+        renderReviewQuestion();
+    }
+    
+    function handleReviewNext() {
+        if (reviewAnswers[reviewCurrentIndex] === null) {
+            alert("Veuillez vérifier votre réponse avant de continuer.");
+            return;
+        }
+        
+        reviewCurrentIndex++;
+        renderReviewQuestion();
+    }
+    
+    function exitReviewMode() {
+        reviewMode = false;
+        modeBadge.style.display = "none";
+        renderCurrentQuestion();
+    }
+    
+    // ========== Rendu normal ==========
     function renderCurrentQuestion() {
+        if (reviewMode) {
+            renderReviewQuestion();
+            return;
+        }
+        
         const q = questions[currentIndex];
         const selectedIdx = userAnswers[currentIndex];
         const isAnswered = (selectedIdx !== null);
         const isCorrect = (isAnswered && selectedIdx === q.correct);
+        
         let feedbackHtml = '';
         if (isAnswered) {
             const correctText = q.options[q.correct];
@@ -299,10 +618,10 @@
             if (isCorrect) {
                 feedbackHtml = `<div class="feedback correct">✅ Correct ! ${explanation}</div>`;
             } else {
-                feedbackHtml = `<div class="feedback wrong">❌ Incorrect. La réponse correcte est : ${correctText}.<br>📘 Notez bien selon le cours : ${explanation}<br>💡 Astuce pour apprendre : ${astuce}</div>`;
+                feedbackHtml = `<div class="feedback wrong">❌ Incorrect. La réponse correcte est : ${correctText}.<br>📘 ${explanation}<br>💡 Astuce : ${astuce}</div>`;
             }
         }
-
+        
         let optionsHtml = '';
         for (let i = 0; i < q.options.length; i++) {
             const checkedAttr = (selectedIdx === i) ? 'checked' : '';
@@ -313,13 +632,18 @@
                 </div>
             `;
         }
-
-        const nextDisabled = (currentIndex === totalQuestions-1) ? false : false; // le bouton suivant actif sauf si fin ?
-        const nextText = (currentIndex === totalQuestions-1) ? "Terminer" : "Suivant";
-
+        
+        const isLastQuestion = (currentIndex === totalQuestions - 1);
+        const nextText = isLastQuestion ? "Terminer" : "Suivant";
+        const wrongCount = saveWrongQuestions().length;
+        
         const html = `
             <div class="question-card">
-                <div class="q-text">${currentIndex+1}. ${q.text}</div>
+                <div class="progress-stats">
+                    <span>📊 Question ${currentIndex+1} / ${totalQuestions}</span>
+                    <span id="wrongCounter" class="wrong-counter" style="display: ${wrongCount > 0 ? 'inline-block' : 'none'}">❌ À revoir: ${wrongCount}</span>
+                </div>
+                <div class="q-text">${q.text}</div>
                 <div class="options" id="optionsContainer">
                     ${optionsHtml}
                 </div>
@@ -327,17 +651,20 @@
                 <div class="btn-group">
                     <button id="verifyBtn" ${isAnswered ? 'disabled' : ''}>Vérifier</button>
                     <button id="nextBtn">${nextText}</button>
-                    <button id="resetQuizBtn" class="reset-btn">Recommencer</button>
+                    <button id="reviewWrongBtn" class="review-btn">📖 Réviser mes erreurs</button>
+                    <button id="resetQuizBtn" class="reset-btn">🔄 Recommencer</button>
+                    <button id="clearProgressBtn" class="clear-progress-btn">🗑️ Effacer progression</button>
                 </div>
             </div>
         `;
         questionArea.innerHTML = html;
-
-        // Attach events
+        
         document.getElementById('verifyBtn')?.addEventListener('click', () => handleVerify());
         document.getElementById('nextBtn')?.addEventListener('click', () => handleNext());
+        document.getElementById('reviewWrongBtn')?.addEventListener('click', () => startReviewMode());
         document.getElementById('resetQuizBtn')?.addEventListener('click', () => resetQuiz());
-        // Attach radio click
+        document.getElementById('clearProgressBtn')?.addEventListener('click', () => clearAllProgress());
+        
         document.querySelectorAll('.opt').forEach(opt => {
             opt.addEventListener('click', (e) => {
                 if (userAnswers[currentIndex] !== null) return;
@@ -345,17 +672,13 @@
                 if (radio && !radio.disabled) radio.checked = true;
             });
         });
-        // real radio change
+        
         const radios = document.querySelectorAll('input[name="question"]');
         radios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (userAnswers[currentIndex] !== null) return;
-                const val = parseInt(e.target.value);
-                // just store temp, but verify will save
-            });
+            radio.addEventListener('change', (e) => {});
         });
     }
-
+    
     function handleVerify() {
         if (userAnswers[currentIndex] !== null) return;
         const selectedRadio = document.querySelector('input[name="question"]:checked');
@@ -365,47 +688,86 @@
         }
         const selectedVal = parseInt(selectedRadio.value);
         userAnswers[currentIndex] = selectedVal;
-        answerLocked = true;
+        saveProgress();
+        saveWrongQuestions();
         updateScore();
-        renderCurrentQuestion(); // re-render with feedback & disable
+        updateWrongCountDisplay();
+        renderCurrentQuestion();
     }
-
+    
     function handleNext() {
         if (userAnswers[currentIndex] === null) {
             alert("Veuillez vérifier votre réponse avant de passer à la question suivante.");
             return;
         }
+        
         if (currentIndex < totalQuestions - 1) {
             currentIndex++;
-            answerLocked = false;
+            saveProgress();
             renderCurrentQuestion();
         } else {
-            // Quiz terminé
             const finalScore = updateScore();
             const percent = (finalScore/totalQuestions)*100;
-            let message = `Quiz terminé ! Score final : ${finalScore} / ${totalQuestions}. `;
-            if (percent >= 90) message += "Félicitations ! Vous avez parfaitement maîtrisé les points du cours. 🎉";
-            else message += "Revisez les parties faibles en vous concentrant sur les définitions et les classifications. 📚";
+            saveLastResult(finalScore);
+            saveWrongQuestions();
+            
+            const wrongCount = saveWrongQuestions().length;
+            let message = `🏆 Quiz terminé ! Score final : ${finalScore} / ${totalQuestions} (${percent.toFixed(1)}%).\n`;
+            if (wrongCount > 0) {
+                message += `\n❌ Questions à réviser : ${wrongCount}\nCliquez sur "Réviser mes erreurs" pour les revoir.`;
+            } else {
+                message += `\n🎉 Parfait ! Aucune erreur à réviser.`;
+            }
             alert(message);
-            // Optional final feedback display
+            
             const finishDiv = document.createElement('div');
             finishDiv.className = 'finish-message';
             finishDiv.innerText = message;
-            if(!document.querySelector('.finish-message')) questionArea.insertAdjacentHTML('beforeend', `<div class="finish-message">${message}</div>`);
+            if(!document.querySelector('.finish-message')) {
+                questionArea.insertAdjacentHTML('beforeend', `<div class="finish-message">${message}</div>`);
+            }
+            updateWrongCountDisplay();
         }
     }
-
+    
     function resetQuiz() {
-        userAnswers = new Array(totalQuestions).fill(null);
-        currentIndex = 0;
-        answerLocked = false;
-        updateScore();
-        renderCurrentQuestion();
+        if (confirm("🔄 Voulez-vous vraiment recommencer le quiz ? Votre progression actuelle sera perdue.")) {
+            userAnswers = new Array(totalQuestions).fill(null);
+            currentIndex = 0;
+            saveProgress();
+            updateScore();
+            updateWrongCountDisplay();
+            renderCurrentQuestion();
+            resumeBanner.style.display = "none";
+        }
     }
-
-    // Initialisation
-    renderCurrentQuestion();
+    
+    function clearAllProgress() {
+        if (confirm("⚠️ ATTENTION : Effacer toute la progression ET les résultats sauvegardés ? Cette action est irréversible.")) {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(LAST_RESULT_KEY);
+            localStorage.removeItem(WRONG_QUESTIONS_KEY);
+            userAnswers = new Array(totalQuestions).fill(null);
+            currentIndex = 0;
+            updateScore();
+            updateLastResultDisplay();
+            updateWrongCountDisplay();
+            renderCurrentQuestion();
+            resumeBanner.style.display = "none";
+            alert("✅ Toute la progression a été effacée. Vous pouvez recommencer depuis le début.");
+        }
+    }
+    
+    // ========== Initialisation ==========
+    const loaded = loadProgress();
+    updateLastResultDisplay();
     updateScore();
+    updateWrongCountDisplay();
+    renderCurrentQuestion();
+    
+    if (loaded && !reviewMode) {
+        checkAndShowResumeBanner();
+    }
 </script>
 </body>
 </html>
