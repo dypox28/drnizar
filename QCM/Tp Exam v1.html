@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QCM - Travaux Pratiques de Chimie Minérale</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        
+        :root {
+            --primary: #1e3a8a;
+        }
+        
+        body {
+            font-family: 'Roboto', system-ui, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc, #e0f2fe);
+            color: #1e2937;
+            line-height: 1.6;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin: 0;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+        
+        #header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        #score {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .progress {
+            width: 180px;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            transition: width 0.4s ease;
+        }
+        
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .question-number {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .question-text {
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+            color: #1e2937;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.1rem;
+        }
+        
+        .option-label:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+        
+        .option-label input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--primary);
+            transform: scale(1.2);
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e2937;
+        }
+        
+        #feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            min-height: 80px;
+        }
+        
+        .correct {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+        
+        .incorrect {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+        
+        .final-result {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .final-score {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+        
+        .motivation {
+            font-size: 1.3rem;
+            color: #1e3a8a;
+            margin-top: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 15px; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧪 QCM Interactif</h1>
+        <p class="subtitle">Travaux Pratiques de Chimie Minérale<br>Faculté de Médecine de Sétif – Département Pharmacie (2023-2024)</p>
+    </header>
+
+    <div id="header-info">
+        <div>
+            <strong>Question</strong> <span id="question-counter">1 / 60</span>
+        </div>
+        <div id="score">Score : <span id="score-value">0</span> / 60</div>
+        <div>
+            <div class="progress"><div id="progress-bar" class="progress-bar" style="width: 0%"></div></div>
+        </div>
+    </div>
+
+    <div id="quiz-container" class="quiz-container">
+        <!-- Questions populated by JavaScript -->
+    </div>
+
+    <footer>
+        Basé exclusivement sur le document TP de Chimie Minérale fourni • 60 questions couvrant tous les TPs
+    </footer>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                question: "Selon les essais préliminaires, quels ions colorent la solution en bleu ou vert ?",
+                options: ["A. Cu²⁺", "B. Fe (jaune à brun)", "C. Cr³⁺ (bleu, violet ou vert)", "D. Ni²⁺ (vert pomme)"],
+                correct: 0,
+                explanation: "Bleu, Vert : Cu²⁺",
+                astuce: "Astuce : Cu²⁺ = bleu comme le ciel en solution."
+            },
+            {
+                id: 2,
+                question: "Quelle couleur est associée au fer dans les essais préliminaires ?",
+                options: ["A. Bleu ou vert", "B. Jaune à brun (peut être incolore en présence de HNO₃)", "C. Violet", "D. Rose"],
+                correct: 1,
+                explanation: "Jaune à brun : Fe (peut être incolore en présence de HNO₃).",
+                astuce: "Astuce : Fe = jaune brun comme la rouille."
+            },
+            {
+                id: 3,
+                question: "Le test d’hydrolyse donne un précipité blanc pour quels cations ?",
+                options: ["A. Fe³⁺", "B. Sb³⁺ et Bi³⁺", "C. Cu²⁺", "D. Pb²⁺"],
+                correct: 1,
+                explanation: "Blanc : Sb³⁺, Bi³⁺",
+                astuce: "Astuce : Sb et Bi = blanc comme neige en hydrolyse."
+            },
+            {
+                id: 4,
+                question: "Le test d’hydrolyse donne un précipité rouille pour quel cation ?",
+                options: ["A. Sb³⁺", "B. Bi³⁺", "C. Fe³⁺", "D. Sn²⁺"],
+                correct: 2,
+                explanation: "Rouille : Fe³⁺",
+                astuce: "Astuce : Fe³⁺ = rouille visible à l’œil nu."
+            },
+            {
+                id: 5,
+                question: "L’essai au bleu de méthylène en milieu acide est positif pour quel réducteur énergique ?",
+                options: ["A. Fe³⁺", "B. Sn²⁺", "C. Hg₂²⁺", "D. Cr₂O₇²⁻"],
+                correct: 1,
+                explanation: "La décoloration est une preuve de la présence de réducteurs énergiques, en particulier Sn²⁺.",
+                astuce: "Astuce : Bleu décoloré = Sn²⁺ réducteur fort."
+            },
+            {
+                id: 6,
+                question: "La décoloration du permanganate de potassium en milieu acide à froid et à chaud traduit la présence de :",
+                options: ["A. Oxydants uniquement", "B. Ions réducteurs (Sn²⁺, Fe²⁺, Hg₂²⁺, etc.)", "C. Seulement Fe³⁺", "D. Seulement MnO₄⁻"],
+                correct: 1,
+                explanation: "La décoloration de KMnO₄ traduit la présence d’ions réducteurs : Sn²⁺, Fe²⁺, Hg₂²⁺, Cr₂O₇²⁻, I⁻, SO₃²⁻, S²⁻, Cl⁻, Br⁻.",
+                astuce: "Astuce : KMnO4 violet → incolore = réducteur présent."
+            },
+            {
+                id: 7,
+                question: "L’essai à l’iodure de potassium en milieu acide détecte la présence de :",
+                options: ["A. Réducteurs", "B. Oxydants de potentiel supérieur au couple I₂/I⁻ (Fe³⁺, Sn⁴⁺, MnO₄⁻…)", "C. Seulement Sn²⁺", "D. Seulement Hg₂²⁺"],
+                correct: 1,
+                explanation: "Si la solution prend une teinte rougeâtre due à une libération d’iode, il y a présence d’oxydant de potentiel supérieur à celui du système Iode/Iodure.",
+                astuce: "Astuce : I⁻ → I₂ rouge = oxydant fort."
+            },
+            {
+                id: 8,
+                question: "Quelle est la coloration de la flamme pour le sodium Na⁺ ?",
+                options: ["A. Rouge orange", "B. Jaune vif", "C. Mauve", "D. Vert"],
+                correct: 1,
+                explanation: "Jaune vif : Sodium Na⁺",
+                astuce: "Astuce : Na⁺ = jaune vif comme le soleil."
+            },
+            {
+                id: 9,
+                question: "Quelle est la coloration de la flamme pour le calcium Ca²⁺ ?",
+                options: ["A. Jaune vif", "B. Rouge orange", "C. Rouge carmin", "D. Bleu"],
+                correct: 1,
+                explanation: "Rouge orange : Calcium Ca²⁺",
+                astuce: "Astuce : Ca²⁺ = rouge orangé comme le feu."
+            },
+            {
+                id: 10,
+                question: "Le pH acide de la liqueur primitive peut être dû à la présence de :",
+                options: ["A. Bases libres uniquement", "B. Cations stables seulement en milieu très acide (Fe³⁺, Bi³⁺, Hg₂²⁺, Sb³⁺, Sn⁴⁺)", "C. Anions arséniates", "D. NH₄OH"],
+                correct: 1,
+                explanation: "Une forte acidité peut être due à la présence de cations stables seulement en milieu très acide : Fe³⁺, Bi³⁺, Hg₂²⁺, Sb³⁺, Sn⁴⁺.",
+                astuce: "Astuce : pH acide = cations acides comme Fe³⁺, Bi³⁺."
+            },
+            {
+                id: 11,
+                question: "Le réactif général pour le groupe 1 est :",
+                options: ["A. Thioacétamide", "B. HCl", "C. NH₄OH", "D. (NH₄)₂S"],
+                correct: 1,
+                explanation: "Réactif général : HCl",
+                astuce: "Astuce : Groupe 1 = HCl → chlorures blancs."
+            },
+            {
+                id: 12,
+                question: "Les cations du 1er groupe sont :",
+                options: ["A. Sn²⁺, Sb³⁺", "B. Pb²⁺, Ag⁺, Hg₂²⁺", "C. Cu²⁺, Cd²⁺", "D. Al³⁺, Cr³⁺"],
+                correct: 1,
+                explanation: "Plomb Pb²⁺, Argent Ag⁺, Mercure (I) Hg₂²⁺",
+                astuce: "Astuce : Groupe 1 = Pb, Ag, Hg₂ (chlorures insolubles)."
+            },
+            {
+                id: 13,
+                question: "Seul PbCl₂ est soluble :",
+                options: ["A. À froid", "B. À chaud", "C. Dans NH₄OH", "D. Dans NaOH"],
+                correct: 1,
+                explanation: "Seul PbCl₂ est soluble à chaude.",
+                astuce: "Astuce : PbCl₂ soluble chaud = seul du groupe 1."
+            },
+            {
+                id: 14,
+                question: "Le précipité du groupe 1 traité par NH₄OH se dissout si c’est :",
+                options: ["A. Hg₂Cl₂", "B. AgCl", "C. PbCl₂", "D. Tous"],
+                correct: 1,
+                explanation: "Le précipité se dissout, il s’agit de l’argent.",
+                astuce: "Astuce : AgCl soluble dans NH₄OH = complexe diamine."
+            },
+            {
+                id: 15,
+                question: "En présence de mercure, le précipité traité par NH₄OH :",
+                options: ["A. Se dissout complètement", "B. Noircit", "C. Devient jaune", "D. Reste blanc"],
+                correct: 1,
+                explanation: "Le précipité est insoluble dans NH₄OH mais noircit, il s’agit du mercure.",
+                astuce: "Astuce : Hg₂Cl₂ + NH₄OH = noircit (Hg noir)."
+            },
+            {
+                id: 16,
+                question: "Les cations du groupe 2 précipitent sous forme de sulfures :",
+                options: ["A. À pH alcalin", "B. À pH acide et à chaud", "C. À pH neutre", "D. Seulement à froid"],
+                correct: 1,
+                explanation: "Les cations de ce groupe précipitent sous forme de sulfures à pH acide et à chaud.",
+                astuce: "Astuce : Groupe 2 = sulfures à pH acide chaud."
+            },
+            {
+                id: 17,
+                question: "Le réactif habituellement utilisé pour produire H₂S dans le groupe 2 est :",
+                options: ["A. HCl", "B. Thioacétamide", "C. NaOH", "D. NH₄Cl"],
+                correct: 1,
+                explanation: "Habituellement, on utilise la thioacétamide qui, par hydrolyse, donne H₂S.",
+                astuce: "Astuce : Thioacétamide = source de H₂S contrôlée."
+            },
+            {
+                id: 18,
+                question: "Le sous-groupe IIa contient les cations dont les sulfures sont solubles dans :",
+                options: ["A. HCl dilué", "B. NaOH 6N à chaud", "C. NH₄OH", "D. H₂SO₄"],
+                correct: 1,
+                explanation: "S/G IIa : sulfures solubles dans la soude (NaOH 6N) à chaud : Sn²⁺, Sn⁴⁺, Sb³⁺, As³⁺",
+                astuce: "Astuce : IIa = solubles dans soude chaude."
+            },
+            {
+                id: 19,
+                question: "Le sous-groupe IIb contient :",
+                options: ["A. Sn²⁺, Sb³⁺", "B. Bi³⁺, Cu²⁺, Cd²⁺, Hg²⁺ (Pb²⁺)", "C. Al³⁺, Cr³⁺", "D. Ba²⁺, Sr²⁺"],
+                correct: 1,
+                explanation: "S/G IIb : sulfures insolubles dans la soude : Bi³⁺, Cu²⁺, Cd²⁺, Hg²⁺, (Pb²⁺).",
+                astuce: "Astuce : IIb = insolubles dans soude."
+            },
+            {
+                id: 20,
+                question: "Pour identifier As³⁺ directement sur la liqueur primitive, on utilise le réactif de :",
+                options: ["A. Bougault", "B. Montequi", "C. Thiazol", "D. Aluminon"],
+                correct: 0,
+                explanation: "On peut aussi identifier directement As³⁺ sur la liqueur primitive par le réactif de Bougault.",
+                astuce: "Astuce : As³⁺ = réactif Bougault → As noir."
+            },
+            {
+                id: 21,
+                question: "Sn²⁺ est identifié par décoloration de :",
+                options: ["A. KMnO₄", "B. Bleu de méthylène", "C. Iodure de potassium", "D. Ferrocyanure"],
+                correct: 1,
+                explanation: "Sn²⁺ : 5 gouttes du surnageant + 1 goutte du bleu de méthylène → décoloration",
+                astuce: "Astuce : Sn²⁺ = bleu méthylène décoloré."
+            },
+            {
+                id: 22,
+                question: "Hg²⁺ est identifié par addition de SnCl₂ qui donne :",
+                options: ["A. Précipité jaune", "B. Précipité blanc puis gris", "C. Coloration bleue", "D. Coloration rouge"],
+                correct: 1,
+                explanation: "Par addition de SnCl₂ → formation d’un précipité blanc puis gris",
+                astuce: "Astuce : Hg²⁺ + SnCl₂ = Hg blanc puis gris."
+            },
+            {
+                id: 23,
+                question: "Bi³⁺ donne avec NH₄OH un précipité :",
+                options: ["A. Bleu", "B. Blanc Bi(OH)₃", "C. Jaune", "D. Noir"],
+                correct: 1,
+                explanation: "En présence de Bi³⁺, un précipité blanc apparaît : Bi³⁺ + 3 OH⁻ → Bi(OH)₃",
+                astuce: "Astuce : Bi³⁺ = précipité blanc avec NH₄OH."
+            },
+            {
+                id: 24,
+                question: "Cu²⁺ avec NH₄OH donne une solution :",
+                options: ["A. Incolore", "B. Bleue (complexe tétraammine)", "C. Jaune", "D. Rose"],
+                correct: 1,
+                explanation: "Cu²⁺ + 4NH₄OH → [Cu(NH₃)₄]²⁺ + 4H₂O (solution bleue)",
+                astuce: "Astuce : Cu²⁺ = bleu intense avec NH₄OH."
+            },
+            {
+                id: 25,
+                question: "Cd²⁺ est identifié par précipité :",
+                options: ["A. Noir", "B. Jaune CdS", "C. Blanc", "D. Rouge"],
+                correct: 1,
+                explanation: "Cd²⁺ + S²⁻ → CdS (précipité jaune)",
+                astuce: "Astuce : CdS = jaune pâle caractéristique."
+            },
+            {
+                id: 26,
+                question: "Les cations du groupe 3 précipitent à :",
+                options: ["A. pH acide", "B. pH = 9 avec (NH₄)₂S, NH₄OH et NH₄Cl", "C. pH neutre", "D. pH très alcalin sans NH₄Cl"],
+                correct: 1,
+                explanation: "Les cations de ce groupe précipitent sous forme de sulfures et pour certains sous forme d’hydroxydes à pH=9 et à chaud par action d’un mélange de (NH₄)₂S, NH₄OH et NH₄Cl.",
+                astuce: "Astuce : Groupe 3 = pH 9 + (NH₄)₂S."
+            },
+            {
+                id: 27,
+                question: "Le sous-groupe IIIa contient :",
+                options: ["A. Fe²⁺, Ni²⁺", "B. Al³⁺, Cr³⁺, Zn²⁺", "C. Co²⁺, Mn²⁺", "D. Pb²⁺, Ag⁺"],
+                correct: 1,
+                explanation: "S/G IIIa : Cations dont les hydroxydes ou les sulfures sont solubles dans la soude à chaud : Al³⁺, Cr³⁺, Zn²⁺",
+                astuce: "Astuce : IIIa = solubles dans soude chaude."
+            },
+            {
+                id: 28,
+                question: "Le sous-groupe IIIb contient :",
+                options: ["A. Al³⁺, Zn²⁺", "B. Fe²⁺, Fe³⁺, Ni²⁺, Co²⁺, Mn²⁺", "C. Sn²⁺, Sb³⁺", "D. Ba²⁺, Sr²⁺"],
+                correct: 1,
+                explanation: "S/G IIIb : Cations dont les sulfures sont insolubles dans la soude à chaud : Fe²⁺, Fe³⁺, Ni²⁺, Co²⁺, Mn²⁺",
+                astuce: "Astuce : IIIb = insolubles dans soude."
+            },
+            {
+                id: 29,
+                question: "Cr³⁺ est identifié par précipité jaune de :",
+                options: ["A. PbCrO₄", "B. CdS", "C. Bi(OH)₃", "D. Fe(SCN)₃"],
+                correct: 0,
+                explanation: "CrO₄²⁻ + Pb²⁺ → PbCrO₄ (précipité jaune insoluble dans l’acide acétique)",
+                astuce: "Astuce : Cr = chromate jaune avec Pb²⁺."
+            },
+            {
+                id: 30,
+                question: "Zn²⁺ donne avec K₄[Fe(CN)₆] un précipité :",
+                options: ["A. Bleu", "B. Blanc jaunâtre virant au bleu à chaud", "C. Noir", "D. Rouge"],
+                correct: 1,
+                explanation: "Zn²⁺ : précipité de couleur variable blanc jaunâtre virant au bleu se développe surtout à chaud.",
+                astuce: "Astuce : Zn = ferrocyanure blanc-bleu."
+            },
+            {
+                id: 31,
+                question: "Al³⁺ est identifié par la laque rouge avec :",
+                options: ["A. Thiourée", "B. Aluminon", "C. DMG", "D. Thiazol"],
+                correct: 1,
+                explanation: "Al³⁺ : apparition d’une laque rouge intense non détruite par NH₄OH (aluminon)",
+                astuce: "Astuce : Al = laque rouge avec aluminon."
+            },
+            {
+                id: 32,
+                question: "Fe³⁺ donne avec K₄[Fe(CN)₆] :",
+                options: ["A. Précipité jaune", "B. Précipité bleu de Prusse", "C. Coloration rose", "D. Précipité blanc"],
+                correct: 1,
+                explanation: "4Fe³⁺ + 3[Fe(CN)₆]⁴⁻ → [Fe(CN)₆]₃Fe₄ (bleu de Prusse foncé)",
+                astuce: "Astuce : Fe³⁺ = bleu de Prusse intense."
+            },
+            {
+                id: 33,
+                question: "Pour différencier Fe²⁺ de Fe³⁺, on utilise :",
+                options: ["A. Aluminon", "B. Orthophénantroline (complexe rouge pour Fe²⁺)", "C. Thioacétamide", "D. PbO₂"],
+                correct: 1,
+                explanation: "Dans une plaque à godets : … orthophénantroline → si Fe²⁺, un complexe rouge apparaît",
+                astuce: "Astuce : Fe²⁺ = rouge avec orthophénantroline."
+            },
+            {
+                id: 34,
+                question: "Ni²⁺ est identifié par :",
+                options: ["A. Coloration bleue", "B. Précipité rouge groseille avec DMG", "C. Précipité blanc", "D. Coloration violette"],
+                correct: 1,
+                explanation: "Ni²⁺ : apparition d’une coloration ou d’un précipité rouge groseille avec DMG.",
+                astuce: "Astuce : Ni = rouge groseille avec DMG."
+            },
+            {
+                id: 35,
+                question: "Co²⁺ donne une coloration bleue de la phase alcoolique avec :",
+                options: ["A. Ferrocyanure", "B. NH₄SCN + alcool amylique", "C. Aluminon", "D. Thiazol"],
+                correct: 1,
+                explanation: "Co²⁺ : coloration bleue de la phase alcoolique due à [Co(SCN)₄]²⁻",
+                astuce: "Astuce : Co = bleu thiocyanate en alcool."
+            },
+            {
+                id: 36,
+                question: "Mn²⁺ est oxydé en MnO₄⁻ (violet) par :",
+                options: ["A. SnCl₂", "B. PbO₂ en milieu HNO₃", "C. NH₄OH", "D. KI"],
+                correct: 1,
+                explanation: "Mn²⁺ : coloration violette après centrifugation (oxydation de Mn²⁺ en MnO₄⁻ avec PbO₂)",
+                astuce: "Astuce : Mn = violet permanganate avec PbO₂."
+            },
+            {
+                id: 37,
+                question: "Le groupe 4 est le groupe des :",
+                options: ["A. Cations lourds", "B. Alcalino-terreux (Ba²⁺, Sr²⁺, Ca²⁺, Mg²⁺)", "C. Métaux de transition", "D. Cations du groupe 1"],
+                correct: 1,
+                explanation: "C’est un groupe homogène (alcalino-terreux).",
+                astuce: "Astuce : Groupe 4 = Ba, Sr, Ca, Mg (alcalino-terreux)."
+            },
+            {
+                id: 38,
+                question: "Ba²⁺ est identifié par précipité blanc instantané avec :",
+                options: ["A. (NH₄)₂C₂O₄", "B. H₂SO₄ dilué (BaSO₄)", "C. NaOH", "D. K₂CrO₄"],
+                correct: 1,
+                explanation: "Ba²⁺ : précipité blanc instantané BaSO₄",
+                astuce: "Astuce : Ba = sulfate blanc insoluble."
+            },
+            {
+                id: 39,
+                question: "Sr²⁺ donne un trouble blanc avec H₂SO₄ dilué :",
+                options: ["A. À froid uniquement", "B. À chaud au bain-marie", "C. Jamais", "D. Seulement avec oxalate"],
+                correct: 1,
+                explanation: "Sr²⁺ : apparition d’un trouble blanc de SrSO₄ (chauffé au bain-marie)",
+                astuce: "Astuce : Sr = sulfate trouble à chaud."
+            },
+            {
+                id: 40,
+                question: "Ca²⁺ est précipité par :",
+                options: ["A. H₂SO₄", "B. (NH₄)₂C₂O₄ (oxalate blanc)", "C. K₂CrO₄", "D. Thiazol"],
+                correct: 1,
+                explanation: "Ca²⁺ : formation d’un précipité blanc CaC₂O₄",
+                astuce: "Astuce : Ca = oxalate blanc."
+            },
+            {
+                id: 41,
+                question: "Mg²⁺ donne un précipité rose avec :",
+                options: ["A. Aluminon", "B. Jaune de thiazol + NaOH à chaud", "C. DMG", "D. PbO₂"],
+                correct: 1,
+                explanation: "Mg²⁺ : précipité rose Mg(OH)₂ avec jaune de thiazol",
+                astuce: "Astuce : Mg = rose avec thiazol."
+            },
+            {
+                id: 42,
+                question: "Dans le schéma général, le réactif pour le groupe 2 est :",
+                options: ["A. HCl", "B. Thioacétamide à chaud", "C. (NH₄)₂S", "D. NaOH"],
+                correct: 1,
+                explanation: "Ajoutez 12 gouttes de thioacétamide… chauffer 5 min au bain-marie.",
+                astuce: "Astuce : Groupe 2 = thioacétamide + chaleur."
+            },
+            {
+                id: 43,
+                question: "La séparation du S/G IIa et IIb se fait par :",
+                options: ["A. HCl concentré", "B. NaOH 6N à ébullition", "C. NH₄OH", "D. H₂SO₄"],
+                correct: 1,
+                explanation: "Ajouter 2 ml d’eau distillée + 2 ml NaOH 6N, porter à ébullition 5 min.",
+                astuce: "Astuce : Séparation II = NaOH chaud."
+            },
+            {
+                id: 44,
+                question: "Aucune incompatibilité n’existe entre :",
+                options: ["A. S²⁻ et NO₃⁻", "B. NO₃⁻ et les cations cités", "C. MnO₄⁻ et tous les cations", "D. NH₄⁺ et tous les anions cités"],
+                correct: 1,
+                explanation: "Aucune incompatibilité entre NO₃⁻ (nitrate) et les cations cités.",
+                astuce: "Astuce : Nitrate = compatible avec tout."
+            },
+            {
+                id: 45,
+                question: "La flamme jaune du sodium cache souvent :",
+                options: ["A. Toutes les couleurs", "B. Les autres colorations (on utilise verre bleu de cobalt)", "C. Seulement le rouge", "D. Rien"],
+                correct: 1,
+                explanation: "La flamme jaune du sodium cache fréquemment les autres colorations. On peut se rendre compte en regardant la flamme à travers un verre bleu de cobalt.",
+                astuce: "Astuce : Na jaune = filtre cobalt pour voir les autres."
+            },
+            {
+                id: 46,
+                question: "Le groupe 3 est dissous par :",
+                options: ["A. NaOH seul", "B. HCl concentré (éventuellement + HNO₃ = eau régale)", "C. NH₄Cl seul", "D. H₂O₂ seul"],
+                correct: 1,
+                explanation: "Reprendre le précipité par 3 ml HCl(c). Si dissolution incomplète, ajouter 1 ml HNO₃(c). Le mélange HCl–HNO₃ est appelé eau régale.",
+                astuce: "Astuce : Groupe 3 = eau régale pour dissoudre."
+            },
+            {
+                id: 47,
+                question: "Après traitement du précipité du groupe 3 par NaOH + H₂O₂, le surnageant contient :",
+                options: ["A. S/G IIIb", "B. CrO₄²⁻, AlO₂⁻, ZnO₂²⁻ (S/G IIIa)", "C. Fe(OH)₃", "D. NiS"],
+                correct: 1,
+                explanation: "Le surnageant renferme les cations du S/G IIIa : CrO₄²⁻, AlO₂⁻, ZnO₂²⁻",
+                astuce: "Astuce : IIIa = soluble dans NaOH + H₂O₂."
+            },
+            {
+                id: 48,
+                question: "Le précipité du groupe 3 après NaOH + H₂O₂ contient :",
+                options: ["A. S/G IIIa", "B. S/G IIIb : Fe(OH)₃, Ni(OH)₂, Co(OH)₂, Mn(OH)₂", "C. CdS", "D. PbSO₄"],
+                correct: 1,
+                explanation: "Le précipité renferme les cations du S/G IIIb.",
+                astuce: "Astuce : IIIb = précipité après NaOH + H₂O₂."
+            },
+            {
+                id: 49,
+                question: "Dans le groupe 2, Pb²⁺ peut aussi précipiter sous forme de :",
+                options: ["A. PbCl₂", "B. PbS", "C. PbCrO₄", "D. PbI₂"],
+                correct: 1,
+                explanation: "Pb²⁺ peut aussi être présent et précipite sous forme de sulfure PbS.",
+                astuce: "Astuce : Pb dans groupe 2 = PbS noir."
+            },
+            {
+                id: 50,
+                question: "La réaction de précipitation du Hg₂²⁺ avec Cl⁻ est :",
+                options: ["A. Hg₂²⁺ + 2Cl⁻ → Hg₂Cl₂", "B. Hg⁺ + Cl⁻ → HgCl", "C. Hg²⁺ + 2Cl⁻ → HgCl₂", "D. Toutes sont fausses"],
+                correct: 0,
+                explanation: "Hg₂²⁺ + 2Cl⁻ → Hg₂Cl₂ (blanc pulvérulent)",
+                astuce: "Astuce : Hg₂²⁺ = Hg₂Cl₂ blanc."
+            },
+            {
+                id: 51,
+                question: "Pour confirmer Sn⁴⁺ après réduction par Al, on utilise :",
+                options: ["A. KI", "B. HgCl₂ (précipité blanc puis gris)", "C. NH₄SCN", "D. Aluminon"],
+                correct: 1,
+                explanation: "Sur le surnageant on confirme la présence de Sn²⁺ par … + 2 gouttes HgCl₂ → précipité blanc puis gris.",
+                astuce: "Astuce : Sn⁴⁺ réduit → Sn²⁺ testé par HgCl₂."
+            },
+            {
+                id: 52,
+                question: "Sb³⁺ est identifié par précipité jaune orangé :",
+                options: ["A. Sb₂S₃", "B. Sb₂S₅", "C. As₂S₃", "D. SnS"],
+                correct: 0,
+                explanation: "Précipité jaune orangé Sb₂S₃",
+                astuce: "Astuce : Sb = Sb₂S₃ orange."
+            },
+            {
+                id: 53,
+                question: "Le test d’hydrolyse positif se traduit toujours par :",
+                options: ["A. Décoloration", "B. Apparition d’un précipité blanc ou rouille", "C. Coloration jaune", "D. Disparition du précipité"],
+                correct: 1,
+                explanation: "Test d’hydrolyse peut provoquer l’hydrolyse avec formation d’un précipité.",
+                astuce: "Astuce : Hydrolyse = précipité visible."
+            },
+            {
+                id: 54,
+                question: "Dans les incompatibilités, NH₄⁺ et K⁺ sont compatibles avec :",
+                options: ["A. Tous les anions cités", "B. Seulement NO₃⁻", "C. Seulement S²⁻", "D. Aucun"],
+                correct: 0,
+                explanation: "Aucune incompatibilité entre NH₄⁺ (ammonium) ou K⁺ (potassium) et tous les anions cités.",
+                astuce: "Astuce : NH₄⁺ et K⁺ = super compatibles."
+            },
+            {
+                id: 55,
+                question: "Le schéma systématique de séparation des cations commence par :",
+                options: ["A. Groupe 4", "B. Groupe 1 avec HCl", "C. Groupe 3", "D. Groupe 2 directement"],
+                correct: 1,
+                explanation: "Démarche systématique de séparation des cations : SOLUTION → HCl → P1 (groupe 1)",
+                astuce: "Astuce : Début = HCl pour groupe 1."
+            },
+            {
+                id: 56,
+                question: "La réaction de précipitation de Cu²⁺ dans le groupe 2 est :",
+                options: ["A. CuS noir", "B. CuCl₂", "C. Cu(OH)₂", "D. CuCrO₄"],
+                correct: 0,
+                explanation: "Cu²⁺ + S²⁻ → CuS (noir)",
+                astuce: "Astuce : CuS = noir intense."
+            },
+            {
+                id: 57,
+                question: "HgS est le seul sulfure du groupe 2 insoluble dans :",
+                options: ["A. NaOH", "B. HNO₃ dilué à chaud", "C. NH₄OH", "D. HCl"],
+                correct: 1,
+                explanation: "Tous ces sulfures sont solubles dans HNO₃ dilué à chaud sauf HgS noir.",
+                astuce: "Astuce : HgS = seul insoluble dans HNO₃."
+            },
+            {
+                id: 58,
+                question: "Après évaporation du surnageant du groupe 3, on acidifie avec :",
+                options: ["A. NaOH", "B. 0,5 ml HCl concentré", "C. Thioacétamide", "D. NH₄Cl"],
+                correct: 1,
+                explanation: "Acidifier le surnageant du 3ème groupe par 0,5 ml HCl (c)",
+                astuce: "Astuce : Groupe 4 = acidifier avec HCl."
+            },
+            {
+                id: 59,
+                question: "La méthode de l’essai à la flamme est peu précise car :",
+                options: ["A. Toujours jaune", "B. La flamme jaune du sodium cache fréquemment les autres colorations", "C. Trop sensible", "D. Pas de couleur"],
+                correct: 1,
+                explanation: "Cette méthode est peu précise.",
+                astuce: "Astuce : Flamme = Na masque tout, utiliser cobalt."
+            },
+            {
+                id: 60,
+                question: "Le principe général de l’analyse qualitative des cations repose sur :",
+                options: ["A. Précipitation sélective par groupes", "B. Distillation", "C. Chromatographie uniquement", "D. Spectrométrie de masse"],
+                correct: 0,
+                explanation: "Démarche systématique de séparation des cations (schéma S1 → S2 → S3…)",
+                astuce: "Astuce : Analyse qualitative = séparation par groupes successifs."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+
+        function loadQuestion() {
+            const container = document.getElementById('quiz-container');
+            const q = questions[currentQuestion];
+            
+            let html = `
+                <div class="question-number">Question ${currentQuestion + 1} / 60</div>
+                <div class="question-text">${q.question}</div>
+                <div class="options">
+            `;
+            
+            q.options.forEach((option, index) => {
+                const checked = userAnswers[currentQuestion] === index ? 'checked' : '';
+                html += `
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="${index}" ${checked}>
+                        ${option}
+                    </label>
+                `;
+            });
+            
+            html += `</div>`;
+            
+            // Si déjà répondu, afficher feedback immédiatement
+            if (userAnswers[currentQuestion] !== null) {
+                const selected = userAnswers[currentQuestion];
+                const isCorrect = selected === q.correct;
+                html += `
+                    <div id="feedback" class="${isCorrect ? 'correct' : 'incorrect'}">
+                        ${isCorrect ? 
+                            `<strong>✅ Correct !</strong>` : 
+                            `<strong>❌ Incorrect.</strong> La réponse correcte est : <strong>${q.options[q.correct]}</strong><br>
+                            Notez bien selon le cours : ${q.explanation}<br>
+                            <strong>Astuce pour apprendre : ${q.astuce}</strong>`
+                        }
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="margin-top:25px;">
+                        <button onclick="checkAnswer()" class="btn btn-primary">Vérifier ma réponse</button>
+                        <button onclick="nextQuestion()" id="next-btn" class="btn btn-secondary" style="display:none; margin-left:10px;">Suivant →</button>
+                    </div>
+                    <div id="feedback"></div>
+                `;
+            }
+            
+            container.innerHTML = html;
+            updateHeader();
+        }
+
+        function checkAnswer() {
+            const selectedRadio = document.querySelector('input[name="answer"]:checked');
+            if (!selectedRadio) {
+                alert("Veuillez sélectionner une réponse !");
+                return;
+            }
+            
+            const selectedIndex = parseInt(selectedRadio.value);
+            userAnswers[currentQuestion] = selectedIndex;
+            
+            const q = questions[currentQuestion];
+            const isCorrect = selectedIndex === q.correct;
+            
+            if (isCorrect) score++;
+            
+            // Afficher feedback
+            const feedbackDiv = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            
+            feedbackDiv.className = isCorrect ? 'correct' : 'incorrect';
+            feedbackDiv.innerHTML = isCorrect ? 
+                `<strong>✅ Correct !</strong>` : 
+                `<strong>❌ Incorrect.</strong> La réponse correcte est : <strong>${q.options[q.correct]}</strong><br>
+                 Notez bien selon le cours : ${q.explanation}<br>
+                 <strong>Astuce pour apprendre : ${q.astuce}</strong>`;
+            
+            nextBtn.style.display = 'inline-block';
+            updateHeader();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showFinalResult();
+            }
+        }
+
+        function updateHeader() {
+            document.getElementById('question-counter').textContent = `${currentQuestion + 1} / 60`;
+            document.getElementById('score-value').textContent = score;
+            const progress = Math.round(((currentQuestion + (userAnswers[currentQuestion] !== null ? 1 : 0)) / questions.length) * 100);
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function showFinalResult() {
+            const container = document.getElementById('quiz-container');
+            const percentage = Math.round((score / questions.length) * 100);
+            
+            let motivation = '';
+            if (percentage >= 90) {
+                motivation = '🎉 Excellent ! Vous avez maîtrisé les points du cours.';
+            } else if (percentage >= 70) {
+                motivation = '👍 Très bien ! Revisez seulement les points faibles.';
+            } else if (percentage >= 50) {
+                motivation = '🧠 Bon effort. Revoyez les TPs 2, 3 et 5.';
+            } else {
+                motivation = '📚 Reprenez le cours depuis les essais préliminaires et le schéma général.';
+            }
+            
+            container.innerHTML = `
+                <div class="final-result">
+                    <h2>Quiz terminé !</h2>
+                    <div class="final-score">${score} / 60 <span style="font-size:1.5rem;">(${percentage}%)</span></div>
+                    <div class="motivation">${motivation}</div>
+                    <p style="margin-top:30px; color:#64748b;">Si votre score est élevé (plus de 90%), vous avez maîtrisé les points du cours.<br>Sinon, revisez les parties faibles.</p>
+                    <button onclick="restartQuiz()" class="btn btn-primary" style="margin-top:30px;">Recommencer le QCM</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            loadQuestion();
+        }
+
+        // Lancement du quiz
+        window.onload = function() {
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
